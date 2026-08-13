@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "scenario_id": "shibuya-wide-area-5km",
+  "aoi": {
+    "operations_geojson": "hakoniwa-geo-viewer/config/operations/shibuya-wide-area-5km.geojson",
+    "feature_id": "shibuya-5km-operational-boundary",
+    "nominal_width_m": 5000,
+    "nominal_height_m": 5000,
+    "dimension_tolerance_m": 75,
+    "data_buffer_m": 300
+  },
+  "local_detail": {
+    "scenario": "runtime/windows/scenarios/shibuya/city-pipeline.json",
+    "width_m": 600,
+    "height_m": 600,
+    "status": "ready",
+    "building_lod": "LOD1 collision + textured B3D"
+  },
+  "sources": [
+    {
+      "id": "plateau-shibuya-2023",
+      "root": "data/plateau/shibuya-2023",
+      "municipality_code": "13113",
+      "coverage_scope": "Shibuya ward, 15.11 km2",
+      "aoi_coverage": "partial",
+      "required_kinds": ["bldg", "dem"]
+    }
+  ],
+  "mapray": {
+    "status": "ready-public-b3d",
+    "max_files_per_dataset": 1000,
+    "wide_area_building_lod": "LOD1",
+    "local_detail_policy": "keep-current-600m-threejs-and-mujoco-assets",
+    "preferred_visual_source": "mapray-public-tokyo-b3d",
+    "source_catalog": "runtime/windows/scenarios/shibuya/wide-area-source-catalog.json",
+    "self_conversion_policy": "frozen-fallback-only"
+  },
+  "blocking_reasons": [],
+  "fallback_conversion_constraints": [
+    "The local source inventory contains only Shibuya ward; adjacent municipality CityGML is required only if the accepted public B3D route becomes unavailable."
+  ]
+}

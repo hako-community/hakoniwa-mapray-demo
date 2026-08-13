@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "scenario_id": "shibuya-wide-area-5km",
+  "investigated_at": "2026-08-13",
+  "aoi": {
+    "bbox": {
+      "min_lon": 139.676109560074,
+      "min_lat": 35.636542117897,
+      "max_lon": 139.731390439926,
+      "max_lat": 35.681457882103
+    },
+    "area_km2": 24.941112,
+    "municipalities": [
+      { "code": "13113", "name": "渋谷区", "intersection_km2": 11.803108, "intersection_percent": 47.324 },
+      { "code": "13103", "name": "港区", "intersection_km2": 6.067251, "intersection_percent": 24.326 },
+      { "code": "13110", "name": "目黒区", "intersection_km2": 4.526677, "intersection_percent": 18.149 },
+      { "code": "13112", "name": "世田谷区", "intersection_km2": 1.771078, "intersection_percent": 7.101 },
+      { "code": "13104", "name": "新宿区", "intersection_km2": 0.636103, "intersection_percent": 2.550 },
+      { "code": "13109", "name": "品川区", "intersection_km2": 0.136895, "intersection_percent": 0.549 }
+    ]
+  },
+  "source_query_buffer": {
+    "buffer_m": 300,
+    "bbox": {
+      "min_lon": 139.672792707283,
+      "min_lat": 35.6338471720446,
+      "max_lon": 139.734707292717,
+      "max_lat": 35.6841528279554
+    },
+    "area_km2": 31.286131,
+    "additional_edge_municipalities": [
+      { "code": "13101", "name": "千代田区", "intersection_km2": 0.155381 },
+      { "code": "13114", "name": "中野区", "intersection_km2": 0.011846 }
+    ]
+  },
+  "candidates": [
+    {
+      "id": "mapray-public-tokyo-b3d",
+      "priority": 1,
+      "format": "Mapray B3D",
+      "viewer_compatibility": "Mapray JS 0.9.6 official sample",
+      "status": "ready",
+      "coverage": "5km AOI plus 300m buffer",
+      "required_second_meshes": ["533935", "533945"],
+      "urls": [
+        "https://opentiles.mapray.com/3dcity/533935/",
+        "https://opentiles.mapray.com/3dcity/533945/"
+      ],
+      "self_conversion_required": false,
+      "notes": [
+        "Both tile-index.json endpoints returned HTTP 200 with CORS '*'.",
+        "Use only these two second-level meshes instead of the 14 meshes in the Tokyo-wide sample.",
+        "Browser visual quality, altitude alignment and performance were accepted on 2026-08-13."
+      ]
+    },
+    {
+      "id": "plateau-official-3dtiles-lod1",
+      "priority": 2,
+      "format": "3D Tiles 1.0",
+      "viewer_compatibility": "experimental Mapray 3D Tiles API; not Mapray JS 0.9.6 production path",
+      "status": "fallback-poc",
+      "municipality_codes": ["13101", "13103", "13104", "13109", "13110", "13112", "13113", "13114"],
+      "url_template": "https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/{city_code}-bldg-lod1-texture-latest/tileset.json",
+      "self_conversion_required": false
+    },
+    {
+      "id": "plateau-citygml-self-b3d",
+      "priority": 3,
+      "format": "CityGML to Mapray B3D",
+      "viewer_compatibility": "current Mapray JS 0.9.6 B3D path",
+      "status": "fallback-only",
+      "latest_year": 2025,
+      "spec": "5.0",
+      "buffered_query_building_gml_files": 77,
+      "buffered_query_building_gml_bytes": 4235326148,
+      "buffered_query_building_gml_gib": 3.944,
+      "buffered_query_building_features": 224442,
+      "municipality_breakdown": [
+        { "code": "13101", "name": "千代田区", "files": 2, "bytes": 75675999, "features": 2821 },
+        { "code": "13103", "name": "港区", "files": 14, "bytes": 829988786, "features": 29281 },
+        { "code": "13104", "name": "新宿区", "files": 9, "bytes": 453840789, "features": 20071 },
+        { "code": "13109", "name": "品川区", "files": 2, "bytes": 107121831, "features": 4432 },
+        { "code": "13110", "name": "目黒区", "files": 12, "bytes": 645102766, "features": 38315 },
+        { "code": "13112", "name": "世田谷区", "files": 9, "bytes": 507015644, "features": 37879 },
+        { "code": "13113", "name": "渋谷区", "files": 26, "bytes": 1415354873, "features": 75855 },
+        { "code": "13114", "name": "中野区", "files": 3, "bytes": 201225460, "features": 15788 }
+      ],
+      "self_conversion_required": true,
+      "source_api": "https://api.plateauview.mlit.go.jp/datacatalog/citygml/r:139.672792707283,35.6338471720446,139.734707292717,35.6841528279554?types=bldg",
+      "notes": [
+        "The figures include the six AOI wards and the Chiyoda/Nakano edge slivers introduced by the 300m query buffer.",
+        "The figures are CityGML files returned by the spatial API and do not include all referenced texture bytes.",
+        "Use per-file URLs from the spatial API; do not download eight complete municipality archives.",
+        "DEM CityGML conversion is unnecessary for the wide visual layer because Mapray standard DEM remains in use."
+      ]
+    }
+  ],
+  "decision": {
+    "selected_candidate": "mapray-public-tokyo-b3d",
+    "self_conversion_scope_if_selected_candidate_passes": "none for the 5km visual layer",
+    "preserved_local_scope": "existing 600m Three.js/MuJoCo assets",
+    "next_gate": "complete",
+    "accepted_at": "2026-08-13",
+    "acceptance_evidence": {
+      "screenshot": "devai/確認8.png",
+      "benchmark": "devai/mapray-operations-benchmark-run-1786605835753.json",
+      "scenario_mode": "fixture",
+      "fleet_size": 30,
+      "demo_flight": true,
+      "warmup_seconds": 30,
+      "measurement_seconds": 60,
+      "page_fps_median": 44.906,
+      "page_fps_p5": 31.63,
+      "page_fps_minimum": 14.976,
+      "frame_time_p95_ms": 30.4,
+      "long_task_count": 4,
+      "js_heap_trend_mb_per_minute": -57.845,
+      "error_count": 0,
+      "webgl_context_lost_count": 0,
+      "result": "pass"
+    }
+  },
+  "official_sources": [
+    "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-2024.html",
+    "https://docs.plateauview.mlit.go.jp/api/rest/operations/datacatalogcitygmlconditions/",
+    "https://docs.plateauview.mlit.go.jp/api/rest/operations/datacatalogplateau-datasets/",
+    "https://mapray.com/documents/mapray-js/examples/0.9.6/objects/display_3d_building_all_tokyo/",
+    "https://mapray.com/documents/mapray-js/examples/current/objects/display_plateau_3dtiles/"
+  ]
+}

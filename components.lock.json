@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-13",
+  "components": [
+    {
+      "name": "hakoniwa-geo-viewer",
+      "repository": "https://github.com/hako-community/hakoniwa-geo-viewer.git",
+      "revision": "354f5ee072f149b84b73e3d1d289614f79407681",
+      "review": "https://github.com/hako-community/hakoniwa-geo-viewer/pull/1"
+    },
+    {
+      "name": "hakoniwa-web3d-drone",
+      "repository": "https://github.com/hako-community/hakoniwa-web3d-drone.git",
+      "revision": "d6a2f91f7919a03879488bf7521eda0c8a0dfdbc",
+      "review": "https://github.com/hako-community/hakoniwa-web3d-drone/pull/1"
+    },
+    {
+      "name": "hakoniwa-simenv-data",
+      "repository": "https://github.com/hako-community/hakoniwa-simenv-data.git",
+      "revision": "b7282c8e97ba2bbab5cd4b93c43d583fe62b5730",
+      "review": "https://github.com/hako-community/hakoniwa-simenv-data/pull/1"
+    },
+    {
+      "name": "hakoniwa-pdu-javascript",
+      "repository": "https://github.com/hako-community/hakoniwa-pdu-javascript.git",
+      "revision": "e30d7f70acd67c3c08c392954daa8102f789b4d1"
+    }
+  ]
+}

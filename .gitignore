@@ -1,0 +1,27 @@
+# Local credentials and machine configuration
+runtime/windows/config/.env
+runtime/windows/config/*.local.json
+
+# Generated runtime state
+runtime/windows/.venv-city/
+runtime/windows/generated/
+runtime/windows/logs/
+runtime/windows/mmap/
+runtime/windows/state/
+runtime/windows/scenarios/**/logs/
+runtime/windows/scenarios/**/drone_log*/
+
+# Generated city data and local source datasets
+data/
+devai/
+
+# Python and test caches
+__pycache__/
+*.py[codz]
+.pytest_cache/
+
+# Editor and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

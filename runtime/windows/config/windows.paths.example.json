@@ -1,0 +1,7 @@
+{
+  "hakoniwaCore": "%APPDATA%/hakocore-win",
+  "hakoSim": "%LOCALAPPDATA%/hakoApps-win/hakoSim",
+  "hakoPdu": "%LOCALAPPDATA%/hakoApps-win/hako-pdu",
+  "python": "%LOCALAPPDATA%/Programs/Python/Python312/python.exe",
+  "mapraySdk": ""
+}
