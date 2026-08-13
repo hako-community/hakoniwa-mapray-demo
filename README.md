@@ -23,7 +23,7 @@ git clone https://github.com/hako-community/hakoniwa-geo-viewer.git
 git clone https://github.com/hako-community/hakoniwa-web3d-drone.git
 git clone https://github.com/hako-community/hakoniwa-simenv-data.git
 
-git -C hakoniwa-geo-viewer checkout 354f5ee072f149b84b73e3d1d289614f79407681
+git -C hakoniwa-geo-viewer checkout 44790101e4a261c3afb45b369c1660d379253245
 git -C hakoniwa-web3d-drone checkout d6a2f91f7919a03879488bf7521eda0c8a0dfdbc
 git -C hakoniwa-simenv-data checkout b7282c8e97ba2bbab5cd4b93c43d583fe62b5730
 
