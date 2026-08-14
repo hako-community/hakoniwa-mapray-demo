@@ -30,6 +30,40 @@ class CoreFleetRuntimeTest(unittest.TestCase):
             origin=self.origin,
         )
 
+    def test_supported_locations_have_deterministic_core_fleets(self) -> None:
+        cases = (
+            (
+                "shibuya",
+                self.operations,
+                {"latitude": 35.6625, "longitude": 139.70625},
+            ),
+            (
+                "tokyo-tower",
+                ROOT
+                / "hakoniwa-geo-viewer"
+                / "config"
+                / "operations"
+                / "tokyo-tower-wide-area-5km.geojson",
+                {"latitude": 35.658581, "longitude": 139.745433},
+            ),
+        )
+        for name, operations, origin in cases:
+            with self.subTest(name=name):
+                scenario = CoreFleetScenario(
+                    operations,
+                    fleet_size=30,
+                    seed=20260811,
+                    origin=origin,
+                )
+                first = scenario.sample(12.0)
+                second = scenario.sample(12.0)
+                self.assertEqual(first, second)
+                self.assertEqual(30, len(first))
+                self.assertEqual(3, len({state["route_id"] for state in first}))
+                self.assertTrue(
+                    all(math.isfinite(value) for state in first for value in state["position_ros"])
+                )
+
     def test_deterministic_three_route_fleet(self) -> None:
         first = self.scenario.sample(12.0)
         second = self.scenario.sample(12.0)
@@ -68,6 +102,10 @@ class CoreFleetRuntimeTest(unittest.TestCase):
         self.assertIn('source = "hakoniwa-core-kinematic"', launcher)
         self.assertIn("liveProfile=kinematic", launcher)
         self.assertIn('"--profile", "fleets"', launcher)
+        self.assertIn('[ValidateSet("shibuya", "tokyo-tower")]', launcher)
+        self.assertIn('viewer-config-$ScenarioName.json', launcher)
+        self.assertIn('"--origin-latitude", $originLatitude', launcher)
+        self.assertIn('"--origin-longitude", $originLongitude', launcher)
 
 
 if __name__ == "__main__":
