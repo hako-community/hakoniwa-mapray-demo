@@ -20,6 +20,23 @@ __pycache__/
 *.py[codz]
 .pytest_cache/
 
+# Submodule repositories (managed independently)
+hakoniwa-geo-viewer/
+hakoniwa-web3d-drone/
+hakoniwa-simenv-data/
+hakoniwa-mujoco-runtime/
+hakoniwa-mujoco-sensor/
+hakoniwa-pdu-bridge-core/
+
+# Local plans and temporary files
+Plan20260811/
+Plan20260814/
+plan20260806/
+_backup_*/
+.publish/
+.tmp_*/
+alignment-check.png
+
 # Editor and OS files
 .idea/
 .vscode/

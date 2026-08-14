@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "name": "tokyo-tower",
+  "origin": {
+    "latitude": 35.658581,
+    "longitude": 139.745433,
+    "altitude": 0.0
+  },
+  "source_crs": "EPSG:4326",
+  "horizontal_crs": "EPSG:6677",
+  "vertical": {
+    "datum": "orthometric_height",
+    "z_offset": 0.0
+  },
+  "terrain": {
+    "source": "PLATEAU Minato 2025 CityGML TINRelief EPSG:6697",
+    "grid_size": 257,
+    "source_margin_m": 20.0,
+    "z_baseline": "building_min",
+    "nodata": -9999.0,
+    "base_depth_m": 5.0,
+    "validation_tolerance_m": 0.05
+  },
+  "extent": {
+    "north_south_half_m": 300.0,
+    "east_west_half_m": 300.0
+  },
+  "citygml": {
+    "kinds": ["bldg"],
+    "pattern": "*bldg*_op.gml",
+    "base_epsilon_m": 0.2,
+    "swap_latlon": true,
+    "measured_height_ids": [
+      "bldg_7aff4a51-be8b-405b-abe4-ac489697cbc8"
+    ]
+  },
+  "geometry": {
+    "waste_threshold": 1.0,
+    "wall_thickness_m": 0.1
+  },
+  "collision": {
+    "mode": "drone"
+  },
+  "mujoco_axes": {
+    "x": "north",
+    "y": "-east",
+    "z": "up"
+  },
+  "base_model": "runtime/windows/scenarios/shibuya/config/drone/mujoco-shibuya-api-1/drone-reference-w1.xml"
+}

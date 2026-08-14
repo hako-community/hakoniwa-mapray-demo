@@ -95,3 +95,4 @@ Write-Host "  Scenario : $($paths.ScenarioRoot)"
 Write-Host "  Core mmap: $($paths.MmapRoot)"
 Write-Host "  MuJoCo   : $mujocoDll ($mujocoVersion)"
 Write-Host "  Manifest : $manifestPath"
+

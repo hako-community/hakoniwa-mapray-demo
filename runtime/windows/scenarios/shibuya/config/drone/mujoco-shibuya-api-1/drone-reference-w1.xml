@@ -43,7 +43,7 @@
   <asset>
     <!-- 白いテクスチャを設定 -->
     <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1="1 1 1" rgb2="1 1 1"/>
-
+    
     <!-- マテリアル（白色）を設定 -->
     <material name="white_ground" texture="grid" reflectance="0"/>
   </asset>

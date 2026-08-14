@@ -1,5 +1,7 @@
 [CmdletBinding()]
 param(
+    [ValidateSet("shibuya", "tokyo-tower")]
+    [string]$ScenarioName = "shibuya",
     [ValidateSet(10, 20, 30)]
     [int]$FleetSize = 30,
     [int]$Seed = 20260811,
@@ -35,7 +37,30 @@ $publisherScript = Join-Path $PSScriptRoot "core_fleet_state_publisher.py"
 $bridgeScript = Join-Path $PSScriptRoot "pdu_web_bridge.py"
 $httpScript = Join-Path $PSScriptRoot "serve_geo_viewer.py"
 $pduConfig = Join-Path $paths.RepositoryRoot "runtime\windows\core-fleet\config\pdudef\drone-visual-state.json"
-$operations = Join-Path $paths.RepositoryRoot "hakoniwa-geo-viewer\config\operations\shibuya-wide-area-5km.geojson"
+$viewerConfigRoot = Join-Path $paths.RepositoryRoot "hakoniwa-geo-viewer\config"
+$scenarioPath = Join-Path $viewerConfigRoot "scenarios\$ScenarioName.json"
+$viewerConfigPath = Join-Path $viewerConfigRoot "viewer-config-$ScenarioName.json"
+$scenario = if (Test-Path -LiteralPath $scenarioPath) {
+    Get-Content -LiteralPath $scenarioPath -Raw | ConvertFrom-Json
+} else {
+    $null
+}
+$scenarioDirectory = Split-Path -Parent $scenarioPath
+$operations = if ($null -ne $scenario) {
+    [System.IO.Path]::GetFullPath((Join-Path $scenarioDirectory ([string]$scenario.paths.operationsLayer)))
+} else {
+    ""
+}
+$geoOriginPath = if ($null -ne $scenario) {
+    [System.IO.Path]::GetFullPath((Join-Path $scenarioDirectory ([string]$scenario.paths.geoOrigin)))
+} else {
+    ""
+}
+$geoOrigin = if (Test-Path -LiteralPath $geoOriginPath) {
+    Get-Content -LiteralPath $geoOriginPath -Raw | ConvertFrom-Json
+} else {
+    $null
+}
 $hakoCmd = Join-Path $paths.CoreBin "hako-cmd.exe"
 $conductorLog = Join-Path $paths.LogsRoot "core-fleet-conductor.log"
 $conductorErr = Join-Path $paths.LogsRoot "core-fleet-conductor.err"
@@ -54,12 +79,24 @@ foreach ($item in @(
     $bridgeScript,
     $httpScript,
     $pduConfig,
-    $operations
+    $scenarioPath,
+    $viewerConfigPath,
+    $operations,
+    $geoOriginPath
 )) {
     if (-not (Test-Path -LiteralPath $item)) {
         throw "Core fleet prerequisite missing: $item"
     }
 }
+if ($null -eq $geoOrigin -or $null -eq $geoOrigin.origin) {
+    throw "Scenario origin is invalid: $geoOriginPath"
+}
+$originLatitude = ([double]$geoOrigin.origin.latitude).ToString(
+    [System.Globalization.CultureInfo]::InvariantCulture
+)
+$originLongitude = ([double]$geoOrigin.origin.longitude).ToString(
+    [System.Globalization.CultureInfo]::InvariantCulture
+)
 if (Test-Path -LiteralPath $statePath) {
     throw "Core fleet demo state already exists. Run stop_core_fleet_demo.ps1 first."
 }
@@ -127,6 +164,8 @@ try {
         "--operations", $operations,
         "--fleet-size", $FleetSize,
         "--seed", $Seed,
+        "--origin-latitude", $originLatitude,
+        "--origin-longitude", $originLongitude,
         "--ready-file", $readyFile
     ) -WorkingDirectory $paths.RepositoryRoot -RedirectStandardOutput $publisherLog `
         -RedirectStandardError $publisherErr -WindowStyle Hidden -PassThru
@@ -200,12 +239,19 @@ try {
         throw "hako-cmd start failed: $startOutput"
     }
     $viewerUrl = "http://localhost:$HttpPort/hakoniwa-geo-viewer/src/client/index.html?" +
-        "scenarioConfig=/hakoniwa-geo-viewer/config/viewer-config-shibuya.json&" +
+        "scenarioConfig=/hakoniwa-geo-viewer/config/viewer-config-$ScenarioName.json&" +
         "threejsRoot=/hakoniwa-web3d-drone&scenarioMode=live&liveProfile=kinematic&" +
-        "fleetSize=$FleetSize&seed=$Seed"
+        "fleetSize=$FleetSize&seed=$Seed&maprayBuildings=public-wide&autoConnect=1"
     $state = [ordered]@{
         status = "running"
         source = "hakoniwa-core-kinematic"
+        scenarioName = $ScenarioName
+        scenarioPath = $scenarioPath
+        operations = $operations
+        origin = [ordered]@{
+            latitude = [double]$geoOrigin.origin.latitude
+            longitude = [double]$geoOrigin.origin.longitude
+        }
         startedAt = (Get-Date).ToString("o")
         fleetSize = $FleetSize
         seed = $Seed
