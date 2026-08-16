@@ -1,0 +1,9 @@
+# Python dependencies used by scripts/windows.
+# Validated with the configured Python 3.12 runtime.
+#
+# hakopy is supplied by the Hakoniwa Core Windows installation. common.ps1
+# adds its lib/py directory to PYTHONPATH, so it must not be installed by pip.
+
+hakoniwa-pdu==1.6.0
+mujoco==3.8.0
+websockets==13.1
