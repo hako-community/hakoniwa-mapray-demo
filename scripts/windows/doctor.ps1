@@ -6,7 +6,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$RepoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\.."))
+. (Join-Path $PSScriptRoot "common.ps1")
+$RepoRoot = Get-RepositoryRoot
 $DefaultLocalConfig = Join-Path $RepoRoot "runtime\windows\config\windows.paths.local.json"
 $DefaultExampleConfig = Join-Path $RepoRoot "runtime\windows\config\windows.paths.example.json"
 $DefaultReportPath = Join-Path $RepoRoot "runtime\windows\logs\doctor-report.json"
@@ -198,6 +199,90 @@ $coreRoot = Expand-ConfiguredPath $config.hakoniwaCore
 $simRoot = Expand-ConfiguredPath $config.hakoSim
 $pythonExe = Expand-ConfiguredPath $config.python
 $mapraySdk = Expand-ConfiguredPath $config.mapraySdk
+$configuredWorkspaceRoot = if ($config.PSObject.Properties.Name -contains "workspaceRoot") {
+    [string]$config.workspaceRoot
+} else {
+    $null
+}
+
+function Get-RepositoryHeadRevision {
+    param([Parameter(Mandatory)][string]$Path)
+
+    $gitMarker = Join-Path $Path ".git"
+    if (Test-Path -LiteralPath $gitMarker -PathType Leaf) {
+        $gitDirValue = (Get-Content -LiteralPath $gitMarker -Raw).Trim()
+        if ($gitDirValue -notmatch "^gitdir:\s*(.+)$") { return $null }
+        $gitDirectory = $Matches[1]
+        if (-not [IO.Path]::IsPathRooted($gitDirectory)) {
+            $gitDirectory = Join-Path $Path $gitDirectory
+        }
+        $gitDirectory = [IO.Path]::GetFullPath($gitDirectory)
+    }
+    elseif (Test-Path -LiteralPath $gitMarker -PathType Container) {
+        $gitDirectory = $gitMarker
+    }
+    else {
+        return $null
+    }
+
+    $headPath = Join-Path $gitDirectory "HEAD"
+    if (-not (Test-Path -LiteralPath $headPath -PathType Leaf)) { return $null }
+    $head = (Get-Content -LiteralPath $headPath -Raw).Trim()
+    if ($head -notmatch "^ref:\s*(.+)$") { return $head }
+    $reference = $Matches[1]
+    $referencePath = Join-Path $gitDirectory $reference
+    if (Test-Path -LiteralPath $referencePath -PathType Leaf) {
+        return (Get-Content -LiteralPath $referencePath -Raw).Trim()
+    }
+    $packedRefsPath = Join-Path $gitDirectory "packed-refs"
+    if (Test-Path -LiteralPath $packedRefsPath -PathType Leaf) {
+        $match = Get-Content -LiteralPath $packedRefsPath |
+            Where-Object { $_ -match "^([0-9a-f]{40})\s+$([regex]::Escape($reference))$" } |
+            Select-Object -First 1
+        if ($match -match "^([0-9a-f]{40})") { return $Matches[1] }
+    }
+    return $null
+}
+$workspaceRoot = Resolve-WorkspaceRoot -RepositoryRoot $RepoRoot -ConfiguredRoot $configuredWorkspaceRoot
+$Details.runtimeRepositoryRoot = $RepoRoot
+$Details.workspaceRoot = $workspaceRoot
+Add-Check -Name "Runtime repository root" -Status INFO -Severity information `
+    -Message "Runtime-owned scripts and generated state use this root." -Path $RepoRoot
+Test-RequiredDirectory -Name "Component workspace root" -Path $workspaceRoot | Out-Null
+foreach ($componentName in @(
+    "hakoniwa-geo-viewer",
+    "hakoniwa-simenv-data",
+    "hakoniwa-web3d-drone"
+)) {
+    Test-RequiredDirectory -Name $componentName -Path (Join-Path $workspaceRoot $componentName) | Out-Null
+}
+$lockPath = Join-Path $RepoRoot "components.lock.json"
+if (Test-Path -LiteralPath $lockPath -PathType Leaf) {
+    $componentLock = Get-Content -LiteralPath $lockPath -Raw | ConvertFrom-Json
+    foreach ($component in $componentLock.components) {
+        if ($component.name -notin @(
+            "hakoniwa-geo-viewer",
+            "hakoniwa-simenv-data",
+            "hakoniwa-web3d-drone"
+        )) { continue }
+        $componentPath = Join-Path $workspaceRoot $component.name
+        if (-not (Test-Path -LiteralPath $componentPath -PathType Container)) { continue }
+        $actualRevision = Get-RepositoryHeadRevision -Path $componentPath
+        if ([string]::IsNullOrWhiteSpace($actualRevision)) {
+            Add-Check -Name "$($component.name) revision" -Status WARN -Severity optional `
+                -Message "Could not determine the checked-out revision." -Path $componentPath
+        }
+        elseif ($actualRevision -eq [string]$component.revision) {
+            Add-Check -Name "$($component.name) revision" -Status PASS -Severity optional `
+                -Message "Checked out at the runtime-pinned revision." -Path $actualRevision
+        }
+        else {
+            Add-Check -Name "$($component.name) revision" -Status WARN -Severity optional `
+                -Message "Checkout differs from components.lock.json (expected $($component.revision))." `
+                -Path $actualRevision
+        }
+    }
+}
 
 if ([string]::IsNullOrWhiteSpace($pythonExe) -or -not (Test-Path -LiteralPath $pythonExe -PathType Leaf)) {
     $pythonCommand = Get-Command python.exe -ErrorAction SilentlyContinue

@@ -10,11 +10,11 @@ $ErrorActionPreference = "Stop"
 
 $paths = Get-WindowsPaths -ConfigPath $ConfigPath
 if (-not $GeneratedDirectory) {
-    $GeneratedDirectory = Join-Path $paths.RepositoryRoot "runtime\windows\generated\shibuya"
+    $GeneratedDirectory = Join-Path $paths.RuntimeRoot "generated\shibuya"
 }
 $generatedRoot = [System.IO.Path]::GetFullPath($GeneratedDirectory)
-$workspaceRoot = [System.IO.Path]::GetFullPath($paths.RepositoryRoot)
-if (-not $generatedRoot.StartsWith($workspaceRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+$runtimeRepositoryRoot = [System.IO.Path]::GetFullPath($paths.RepositoryRoot)
+if (-not $generatedRoot.StartsWith($runtimeRepositoryRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
     throw "Generated terrain must be inside the workspace: $generatedRoot"
 }
 
@@ -25,7 +25,7 @@ $manifestSource = Join-Path $generatedRoot "terrain-manifest.json"
 $modelDirectory = Join-Path $paths.ScenarioRoot "config\drone\mujoco-shibuya-api-1"
 $modelDestination = Join-Path $modelDirectory "drone.xml"
 $hfieldDestination = Join-Path $modelDirectory "terrain.hfield"
-$browserGridDestination = Join-Path $paths.RepositoryRoot "hakoniwa-geo-viewer\config\terrain-grid.json"
+$browserGridDestination = Join-Path $paths.GeoViewerRoot "config\terrain-grid.json"
 
 foreach ($item in @($modelSource, $hfieldSource, $browserGridSource, $manifestSource, $modelDirectory)) {
     if (-not (Test-Path -LiteralPath $item)) {

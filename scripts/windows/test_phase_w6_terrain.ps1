@@ -14,7 +14,7 @@ Set-HakoChildEnvironment -Paths $paths
 $monitorScript = Join-Path $PSScriptRoot "monitor_phase_w1.py"
 $missionScript = Join-Path $PSScriptRoot "run_collision_mission.py"
 $pduConfig = Join-Path $paths.ScenarioRoot "config\pdudef\webavatar.json"
-$terrainManifestPath = Join-Path $paths.RepositoryRoot "runtime\windows\generated\shibuya\terrain-manifest.json"
+$terrainManifestPath = Join-Path $paths.RuntimeRoot "generated\shibuya\terrain-manifest.json"
 $monitorReport = Join-Path $paths.LogsRoot "phase-w6-terrain-monitor.json"
 $missionReport = Join-Path $paths.LogsRoot "phase-w6-terrain-mission.json"
 $resultPath = Join-Path $paths.LogsRoot "phase-w6-terrain-runtime.json"

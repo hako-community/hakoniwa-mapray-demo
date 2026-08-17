@@ -4,15 +4,17 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$workspaceRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
+. (Join-Path $PSScriptRoot "common.ps1")
+$paths = Get-WindowsPaths
+$runtimeRepositoryRoot = $paths.RepositoryRoot
 if ([string]::IsNullOrWhiteSpace($VenvPath)) {
-    $VenvPath = Join-Path $workspaceRoot "runtime\windows\.venv-city"
+    $VenvPath = Join-Path $paths.RuntimeRoot ".venv-city"
 }
 elseif (-not [System.IO.Path]::IsPathRooted($VenvPath)) {
-    $VenvPath = Join-Path $workspaceRoot $VenvPath
+    $VenvPath = Join-Path $runtimeRepositoryRoot $VenvPath
 }
 
-$requirements = Join-Path $workspaceRoot "hakoniwa-simenv-data\requirements-city-pipeline.txt"
+$requirements = Join-Path $paths.SimenvDataRoot "requirements-city-pipeline.txt"
 if (-not (Test-Path -LiteralPath $requirements -PathType Leaf)) {
     throw "Requirements file not found: $requirements"
 }

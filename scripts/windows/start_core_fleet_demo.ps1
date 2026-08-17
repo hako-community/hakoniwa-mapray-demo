@@ -36,8 +36,8 @@ $conductorScript = Join-Path $PSScriptRoot "core_fleet_conductor.py"
 $publisherScript = Join-Path $PSScriptRoot "core_fleet_state_publisher.py"
 $bridgeScript = Join-Path $PSScriptRoot "pdu_web_bridge.py"
 $httpScript = Join-Path $PSScriptRoot "serve_geo_viewer.py"
-$pduConfig = Join-Path $paths.RepositoryRoot "runtime\windows\core-fleet\config\pdudef\drone-visual-state.json"
-$viewerConfigRoot = Join-Path $paths.RepositoryRoot "hakoniwa-geo-viewer\config"
+$pduConfig = Join-Path $paths.RuntimeRoot "core-fleet\config\pdudef\drone-visual-state.json"
+$viewerConfigRoot = Join-Path $paths.GeoViewerRoot "config"
 $scenarioPath = Join-Path $viewerConfigRoot "scenarios\$ScenarioName.json"
 $viewerConfigPath = Join-Path $viewerConfigRoot "viewer-config-$ScenarioName.json"
 $scenario = if (Test-Path -LiteralPath $scenarioPath) {
@@ -205,11 +205,11 @@ try {
     } else {
         $http = Start-Process -FilePath $paths.Python -ArgumentList @(
             $httpScript,
-            "--directory", $paths.RepositoryRoot,
+            "--directory", $paths.WorkspaceRoot,
             "--port", $HttpPort,
             "--bind", "127.0.0.1",
-            "--env-file", (Join-Path $paths.RepositoryRoot "runtime\windows\config\.env")
-        ) -WorkingDirectory $paths.RepositoryRoot -RedirectStandardOutput $httpLog `
+            "--env-file", $paths.MaprayEnvFile
+        ) -WorkingDirectory $paths.WorkspaceRoot -RedirectStandardOutput $httpLog `
             -RedirectStandardError $httpErr -WindowStyle Hidden -PassThru
         $httpManaged = $true
     }

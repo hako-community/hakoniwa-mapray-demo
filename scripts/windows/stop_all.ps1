@@ -11,6 +11,7 @@ $ErrorActionPreference = "Stop"
 $paths = Get-WindowsPaths -ConfigPath $ConfigPath
 $hakoCmd = Join-Path $paths.CoreBin "hako-cmd.exe"
 $statePath = Join-Path $paths.StateRoot "hako_drone_service.json"
+$demoHttpStatePath = Join-Path $paths.StateRoot "demo-5km-http.json"
 Set-HakoChildEnvironment -Paths $paths
 
 if (Test-Path -LiteralPath $hakoCmd) {
@@ -37,6 +38,25 @@ if (Test-Path -LiteralPath $statePath) {
     }
     Remove-Item -LiteralPath $statePath -Force
     Start-Sleep -Milliseconds 1000
+}
+
+if (Test-Path -LiteralPath $demoHttpStatePath) {
+    $demoHttpState = Get-Content -LiteralPath $demoHttpStatePath -Raw | ConvertFrom-Json
+    $demoHttpProcess = Get-Process -Id $demoHttpState.pid -ErrorAction SilentlyContinue
+    if ($null -ne $demoHttpProcess) {
+        $actualPath = $demoHttpProcess.Path
+        $expectedPath = [System.IO.Path]::GetFullPath($paths.Python)
+        if ([string]::IsNullOrWhiteSpace($actualPath) -or
+            -not ([System.IO.Path]::GetFullPath($actualPath)).Equals(
+                $expectedPath,
+                [System.StringComparison]::OrdinalIgnoreCase
+            )) {
+            throw "PID $($demoHttpState.pid) no longer belongs to the expected demo HTTP Python process; it was not stopped."
+        }
+        Stop-Process -Id $demoHttpProcess.Id -Force
+        Write-Host "Stopped 5km demo HTTP server: PID $($demoHttpProcess.Id)"
+    }
+    Remove-Item -LiteralPath $demoHttpStatePath -Force
 }
 
 if ($CleanMmap) {

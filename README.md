@@ -20,16 +20,13 @@
 
 ```text
 work_mapray/
+├── hakoniwa-mapray-runtime/ # 本リポジトリ（起動・runtime設定・生成状態）
+│   ├── runtime/
+│   └── scripts/
 ├── hakoniwa-geo-viewer/     # 統合Webビューア（Mapray + Leaflet + Three.js統合UI）
 ├── hakoniwa-web3d-drone/    # Three.js 3Dレンダリング・PLATEAU 3D Tiles・機体描画
 ├── hakoniwa-simenv-data/    # CityGML・DEM・MJCF・3D都市データ生成パイプライン
 ├── hakoniwa-pdu-bridge-core/# 箱庭PDU / WebSocketブリッジ
-├── runtime/                 # 実行時設定（.env）、キャッシュ、ログ
-│   └── windows/
-│       └── config/
-│           └── .env         # Mapray API Key等の環境変数設定（Git管理外）
-├── scripts/                 # 起動・停止・検証・ベンチマーク用スクリプト群
-│   └── windows/             # Windows用PowerShell / Pythonスクリプト
 └── Plan20260814/            # 比較デモ設計書・計画ドキュメント
 ```
 
@@ -56,7 +53,10 @@ MAPRAY_API_KEY=your_mapray_api_key_here
 
 ## 🚀 スクリプト（scripts）の使い方・デモ起動手順
 
-すべてのスクリプトは**ワークスペースルート（`D:\work_hako\work_mapray`）**から実行します。
+すべてのスクリプトは **runtimeリポジトリのルート
+（`work_mapray\hakoniwa-mapray-runtime`）** から実行します。各スクリプトは
+兄弟ディレクトリの `hakoniwa-geo-viewer`、`hakoniwa-simenv-data`、
+`hakoniwa-web3d-drone` を共通設定から解決します。
 
 ### ① 【推奨】5km四方 東京タワー比較デモ（ワンクリック起動）
 

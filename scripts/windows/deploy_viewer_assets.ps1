@@ -27,10 +27,12 @@ function Assert-ExpectedHash {
     }
 }
 
-$repositoryRoot = Get-RepositoryRoot
-$geoViewerRoot = Join-Path $repositoryRoot "hakoniwa-geo-viewer"
+$paths = Get-WindowsPaths
+$repositoryRoot = $paths.RepositoryRoot
+$workspaceRoot = $paths.WorkspaceRoot
+$geoViewerRoot = $paths.GeoViewerRoot
 if ([string]::IsNullOrWhiteSpace($GeneratedDirectory)) {
-    $GeneratedDirectory = Join-Path $repositoryRoot "runtime\windows\generated\$ScenarioName"
+    $GeneratedDirectory = Join-Path $paths.RuntimeRoot "generated\$ScenarioName"
 }
 if ([string]::IsNullOrWhiteSpace($DestinationDirectory)) {
     $DestinationDirectory = Join-Path $geoViewerRoot "runtime-assets\$ScenarioName"
@@ -39,7 +41,7 @@ if ([string]::IsNullOrWhiteSpace($DestinationDirectory)) {
 $generatedRoot = [System.IO.Path]::GetFullPath($GeneratedDirectory)
 $destinationRoot = [System.IO.Path]::GetFullPath($DestinationDirectory)
 Assert-PathIsWorkspaceOwned -Path $generatedRoot -RepositoryRoot $repositoryRoot
-Assert-PathIsWorkspaceOwned -Path $destinationRoot -RepositoryRoot $repositoryRoot
+Assert-PathIsWorkspaceOwned -Path $destinationRoot -RepositoryRoot $workspaceRoot
 $runtimeAssetsRoot = [System.IO.Path]::GetFullPath((Join-Path $geoViewerRoot "runtime-assets")).TrimEnd("\")
 if (-not $destinationRoot.StartsWith($runtimeAssetsRoot + "\", [System.StringComparison]::OrdinalIgnoreCase)) {
     throw "Viewer assets must be deployed below $runtimeAssetsRoot"

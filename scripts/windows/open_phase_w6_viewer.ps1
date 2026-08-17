@@ -59,7 +59,7 @@ function Set-DotEnvValue {
 
 $paths = Get-WindowsPaths -ConfigPath $ConfigPath
 $statePath = Join-Path $paths.StateRoot "phase-w2.json"
-$maprayEnvFile = Join-Path $paths.RepositoryRoot "runtime\windows\config\.env"
+$maprayEnvFile = $paths.MaprayEnvFile
 if (-not (Test-Path -LiteralPath $statePath)) {
     throw "Phase W6 viewer is not running. Run start_simulation.ps1 and start_web_viewer.ps1 first."
 }

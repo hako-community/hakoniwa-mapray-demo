@@ -1,6 +1,11 @@
 # Windows runtime workspace
 
-This directory contains workspace-owned configuration, generated data, and logs for the Windows-only Mapray integration. Installed files under `AppData` are treated as read-only.
+This directory contains runtime-repository-owned configuration, generated data, and logs for the Windows-only Mapray integration. Installed files under `AppData` are treated as read-only.
+
+Run every command from the `hakoniwa-mapray-runtime` repository root. The
+runtime repository and `hakoniwa-geo-viewer`, `hakoniwa-simenv-data`, and
+`hakoniwa-web3d-drone` are sibling directories. `windows.paths.local.json` can
+override `workspaceRoot` when a different checkout layout is required.
 
 ## Phase W0 doctor
 
@@ -64,14 +69,19 @@ Create or update the isolated Windows venv:
 .\scripts\windows\setup_city_pipeline.ps1
 ```
 
-Run the Shibuya conversion from the workspace root:
+Run the Shibuya conversion from the runtime repository root. Pass absolute
+paths because `city_pipeline.py` belongs to the sibling simenv-data repository:
 
 ```powershell
-.\runtime\windows\.venv-city\Scripts\python.exe `
-  .\hakoniwa-simenv-data\tools\city_pipeline.py convert `
-  --input data\plateau\shibuya-2023 `
-  --scenario runtime\windows\scenarios\shibuya\city-pipeline.json `
-  --output runtime\windows\generated\shibuya `
+$runtimeRepository = (Resolve-Path .).Path
+$workspace = Split-Path $runtimeRepository -Parent
+& .\runtime\windows\.venv-city\Scripts\python.exe `
+  (Join-Path $workspace "hakoniwa-simenv-data\tools\city_pipeline.py") convert `
+  --input (Join-Path $workspace "data\plateau\shibuya-2023") `
+  --scenario (Join-Path $runtimeRepository "runtime\windows\scenarios\shibuya\city-pipeline.json") `
+  --output (Join-Path $runtimeRepository "runtime\windows\generated\shibuya") `
+  --base-model (Join-Path $runtimeRepository "runtime\windows\scenarios\shibuya\config\drone\mujoco-shibuya-api-1\drone-reference-w1.xml") `
+  --reference-model (Join-Path $runtimeRepository "runtime\windows\scenarios\shibuya\config\drone\mujoco-shibuya-api-1\drone-reference-w1.xml") `
   --collide drone
 ```
 

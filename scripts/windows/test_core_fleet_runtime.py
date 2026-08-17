@@ -7,7 +7,15 @@ import unittest
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[2]
+RUNTIME_REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+WORKSPACE_ROOT = next(
+    (
+        candidate
+        for candidate in (RUNTIME_REPOSITORY_ROOT, RUNTIME_REPOSITORY_ROOT.parent)
+        if (candidate / "hakoniwa-geo-viewer").is_dir()
+    ),
+    RUNTIME_REPOSITORY_ROOT.parent,
+)
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from core_fleet_scenario import CoreFleetScenario, geo_to_ros  # noqa: E402
@@ -16,7 +24,7 @@ from core_fleet_scenario import CoreFleetScenario, geo_to_ros  # noqa: E402
 class CoreFleetRuntimeTest(unittest.TestCase):
     def setUp(self) -> None:
         self.operations = (
-            ROOT
+            WORKSPACE_ROOT
             / "hakoniwa-geo-viewer"
             / "config"
             / "operations"
@@ -39,7 +47,7 @@ class CoreFleetRuntimeTest(unittest.TestCase):
             ),
             (
                 "tokyo-tower",
-                ROOT
+                WORKSPACE_ROOT
                 / "hakoniwa-geo-viewer"
                 / "config"
                 / "operations"
@@ -86,7 +94,14 @@ class CoreFleetRuntimeTest(unittest.TestCase):
             self.assertTrue(math.isclose(actual_value, expected_value, abs_tol=1e-9))
 
     def test_fleet_pdudef_contract(self) -> None:
-        pdu_root = ROOT / "runtime" / "windows" / "core-fleet" / "config" / "pdudef"
+        pdu_root = (
+            RUNTIME_REPOSITORY_ROOT
+            / "runtime"
+            / "windows"
+            / "core-fleet"
+            / "config"
+            / "pdudef"
+        )
         definition = json.loads((pdu_root / "drone-visual-state.json").read_text(encoding="utf-8"))
         types = json.loads((pdu_root / "drone-visual-state-pdutypes.json").read_text(encoding="utf-8"))
         self.assertEqual(definition["robots"][0]["name"], "DroneVisualStatePublisher")
@@ -95,7 +110,9 @@ class CoreFleetRuntimeTest(unittest.TestCase):
         self.assertEqual(types[0]["type"], "hako_msgs/DroneVisualStateArray")
 
     def test_launcher_labels_kinematic_source(self) -> None:
-        launcher = (ROOT / "scripts" / "windows" / "start_core_fleet_demo.ps1").read_text(
+        launcher = (
+            RUNTIME_REPOSITORY_ROOT / "scripts" / "windows" / "start_core_fleet_demo.ps1"
+        ).read_text(
             encoding="utf-8"
         )
         self.assertIn("core_fleet_conductor.py", launcher)

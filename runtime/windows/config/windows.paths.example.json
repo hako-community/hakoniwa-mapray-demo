@@ -1,4 +1,5 @@
 {
+  "workspaceRoot": "../",
   "hakoniwaCore": "%APPDATA%/hakocore-win",
   "hakoSim": "%LOCALAPPDATA%/hakoApps-win/hakoSim",
   "hakoPdu": "%LOCALAPPDATA%/hakoApps-win/hako-pdu",

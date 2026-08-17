@@ -1,32 +1,38 @@
 {
   "generatedAt": "2026-08-06T19:10:16.9204903+09:00",
-  "scenarioRoot": "D:\\work_hako\\work_mapray\\runtime\\windows\\scenarios\\shibuya",
-  "coreConfig": "D:\\work_hako\\work_mapray\\runtime\\windows\\config\\cpp_core_config.local.json",
-  "mmapRoot": "D:\\work_hako\\work_mapray\\runtime\\windows\\mmap",
+  "pathBase": "runtimeRepository",
+  "scenarioRoot": "runtime/windows/scenarios/shibuya",
+  "coreConfig": "runtime/windows/config/cpp_core_config.local.json",
+  "mmapRoot": "runtime/windows/mmap",
   "runtime": {
-    "executable": "C:\\Users\\buildman\\AppData\\Local\\hakoApps-win\\hakoSim\\bin\\hako_drone_service.exe",
-    "mujocoDll": "C:\\Users\\buildman\\AppData\\Local\\hakoApps-win\\hakoSim\\bin\\mujoco.dll",
+    "pathBase": "hakoSim",
+    "executable": "bin/hako_drone_service.exe",
+    "mujocoDll": "bin/mujoco.dll",
     "mujocoVersion": "3.7.0"
   },
   "files": [
     {
       "relativePath": "config\\drone\\mujoco-shibuya-api-1\\drone_config_0.json",
-      "sourcePath": "C:\\Users\\buildman\\AppData\\Local\\hakoApps-win\\hakoSim\\bin\\config\\drone\\mujoco-shibuya-api-1\\drone_config_0.json",
+      "sourceBase": "hakoSim",
+      "sourcePath": "bin/config/drone/mujoco-shibuya-api-1/drone_config_0.json",
       "sha256": "BED065FC32891EEE1B480EBA3F81D7F45507515453474C6121D0BE1D660BE2B9"
     },
     {
       "relativePath": "config\\drone\\mujoco-shibuya-api-1\\drone.xml",
-      "sourcePath": "C:\\Users\\buildman\\AppData\\Local\\hakoApps-win\\hakoSim\\bin\\config\\drone\\mujoco-shibuya-api-1\\drone.xml",
+      "sourceBase": "hakoSim",
+      "sourcePath": "bin/config/drone/mujoco-shibuya-api-1/drone.xml",
       "sha256": "9E1A5F7ACF965A229C76AE25126D99EA37523EE2C152252BA7BE176003D42B32"
     },
     {
       "relativePath": "config\\controller\\param-api-mixer-mujoco-shibuya.txt",
-      "sourcePath": "C:\\Users\\buildman\\AppData\\Local\\hakoApps-win\\hakoSim\\bin\\config\\controller\\param-api-mixer-mujoco-shibuya.txt",
+      "sourceBase": "hakoSim",
+      "sourcePath": "bin/config/controller/param-api-mixer-mujoco-shibuya.txt",
       "sha256": "6EC274304A6DC5F268C76300DDBC23B0B5211A29D0CB9E9F5339E73B50B55797"
     },
     {
       "relativePath": "config\\pdudef\\webavatar.json",
-      "sourcePath": "C:\\Users\\buildman\\AppData\\Local\\hakoApps-win\\hakoSim\\bin\\config\\pdudef\\webavatar.json",
+      "sourceBase": "hakoSim",
+      "sourcePath": "bin/config/pdudef/webavatar.json",
       "sha256": "0B5FF3F63A91E28B2AF6186842C93568DF41A1FC92F03F0A6E7F7F993476DD07"
     }
   ]

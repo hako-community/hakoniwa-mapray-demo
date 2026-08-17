@@ -69,20 +69,24 @@ $coreConfig | ConvertTo-Json | Set-Content -LiteralPath $paths.CoreConfig -Encod
 
 $manifestFiles = foreach ($relative in $sourceFiles.Keys) {
     $destination = Join-Path $paths.ScenarioRoot $relative
+    $source = Join-Path $sourceRoot $sourceFiles[$relative]
     [ordered]@{
         relativePath = $relative
-        sourcePath = Join-Path $sourceRoot $sourceFiles[$relative]
+        sourceBase = "hakoSim"
+        sourcePath = [System.IO.Path]::GetRelativePath($paths.SimRoot, $source).Replace("\", "/")
         sha256 = (Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash
     }
 }
 $manifest = [ordered]@{
     generatedAt = (Get-Date).ToString("o")
-    scenarioRoot = $paths.ScenarioRoot
-    coreConfig = $paths.CoreConfig
-    mmapRoot = $paths.MmapRoot
+    pathBase = "runtimeRepository"
+    scenarioRoot = [System.IO.Path]::GetRelativePath($paths.RepositoryRoot, $paths.ScenarioRoot).Replace("\", "/")
+    coreConfig = [System.IO.Path]::GetRelativePath($paths.RepositoryRoot, $paths.CoreConfig).Replace("\", "/")
+    mmapRoot = [System.IO.Path]::GetRelativePath($paths.RepositoryRoot, $paths.MmapRoot).Replace("\", "/")
     runtime = [ordered]@{
-        executable = Join-Path $paths.SimBin "hako_drone_service.exe"
-        mujocoDll = $mujocoDll
+        pathBase = "hakoSim"
+        executable = [System.IO.Path]::GetRelativePath($paths.SimRoot, (Join-Path $paths.SimBin "hako_drone_service.exe")).Replace("\", "/")
+        mujocoDll = [System.IO.Path]::GetRelativePath($paths.SimRoot, $mujocoDll).Replace("\", "/")
         mujocoVersion = $mujocoVersion
     }
     files = @($manifestFiles)

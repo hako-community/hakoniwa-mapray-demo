@@ -10,7 +10,7 @@
     "data_buffer_m": 300
   },
   "local_detail": {
-    "scenario": "runtime/windows/scenarios/shibuya/city-pipeline.json",
+    "scenario": "hakoniwa-mapray-runtime/runtime/windows/scenarios/shibuya/city-pipeline.json",
     "width_m": 600,
     "height_m": 600,
     "status": "ready",
@@ -32,7 +32,7 @@
     "wide_area_building_lod": "LOD1",
     "local_detail_policy": "keep-current-600m-threejs-and-mujoco-assets",
     "preferred_visual_source": "mapray-public-tokyo-b3d",
-    "source_catalog": "runtime/windows/scenarios/shibuya/wide-area-source-catalog.json",
+    "source_catalog": "hakoniwa-mapray-runtime/runtime/windows/scenarios/shibuya/wide-area-source-catalog.json",
     "self_conversion_policy": "frozen-fallback-only"
   },
   "blocking_reasons": [],

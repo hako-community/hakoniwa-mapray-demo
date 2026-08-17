@@ -43,6 +43,6 @@
     "y": "-east",
     "z": "up"
   },
-  "base_model": "runtime/windows/scenarios/shibuya/config/drone/mujoco-shibuya-api-1/drone-reference-w1.xml",
-  "reference_model": "runtime/windows/scenarios/shibuya/config/drone/mujoco-shibuya-api-1/drone-reference-w1.xml"
+  "base_model": "hakoniwa-mapray-runtime/runtime/windows/scenarios/shibuya/config/drone/mujoco-shibuya-api-1/drone-reference-w1.xml",
+  "reference_model": "hakoniwa-mapray-runtime/runtime/windows/scenarios/shibuya/config/drone/mujoco-shibuya-api-1/drone-reference-w1.xml"
 }
