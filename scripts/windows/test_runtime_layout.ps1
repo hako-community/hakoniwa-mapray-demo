@@ -18,6 +18,9 @@ if (-not $paths.RepositoryRoot.Equals(
 
 $required = [ordered]@{
     geoViewer = Join-Path $paths.GeoViewerRoot "src\client\index.html"
+    maprayModelPhase0 = Join-Path $paths.GeoViewerRoot "src\client\phase0-mapray-model.html"
+    maprayDroneModel = Join-Path $paths.GeoViewerRoot "src\client\mapray-drone-model.html"
+    maprayModelBuilder = Join-Path $paths.RepositoryRoot "tools\blender\export_mapray_gltf.py"
     simenvData = Join-Path $paths.SimenvDataRoot "tools\city_pipeline.py"
     web3dDrone = Join-Path $paths.Web3dDroneRoot "src\public\drone_viewer.js"
     runtimeConfig = $paths.ConfigPath

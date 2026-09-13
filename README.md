@@ -58,6 +58,118 @@ MAPRAY_API_KEY=your_mapray_api_key_here
 兄弟ディレクトリの `hakoniwa-geo-viewer`、`hakoniwa-simenv-data`、
 `hakoniwa-web3d-drone` を共通設定から解決します。
 
+### Mapray 0.9.6 ドローンモデル専用画面
+
+Maprayだけの全画面で、機体1＋独立プロペラ4を表示するデモです。SDKは`0.9.6`に固定し、Three.jsは読み込みません。
+
+```powershell
+.\scripts\windows\start_mapray_drone_model_demo.ps1
+```
+
+表示URL:
+
+```text
+http://localhost:18080/hakoniwa-geo-viewer/src/client/mapray-drone-model.html?droneRender=model
+```
+
+終了時は専用停止コマンドを実行します。
+
+```powershell
+.\scripts\windows\stop_mapray_drone_model_demo.ps1
+```
+
+検証済みDataset IDは`hakoniwa-geo-viewer/config/mapray-drone-model.json`に設定済みです。旧`start_mapray_model_phase0.ps1`とPhase 0 URLは互換入口として残しています。API Keyは従来どおり `runtime/windows/config/.env`だけで管理し、URLやJavaScriptへ埋め込みません。
+
+右上の基準姿勢セレクターで水平、Yaw +90°、Yaw 180°、Roll +10°、Pitch +10°を切り替えられます。`機体を追従`は現在位置を中心にカメラを追従させます。fixtureとPDU入力は同じ`FlightStateStore`→`MaprayDroneModelLayer.updateDroneState()`経路を使用します。
+
+#### Phase 5 性能比較
+
+同じカメラ・ブラウザで`-RenderMode`だけを変えて起動します。`model`は本体1＋プロペラ4、`pin`は比較用Pin 1個、`both`は位置合わせ確認用の同時表示です。
+
+```powershell
+.\scripts\windows\start_mapray_drone_model_demo.ps1 -RenderMode model
+.\scripts\windows\start_mapray_drone_model_demo.ps1 -RenderMode pin
+.\scripts\windows\start_mapray_drone_model_demo.ps1 -RenderMode both
+```
+
+ブラウザコンソールの`window.__maprayDroneModelDiagnostics`で次を比較できます。
+
+- `performance.loadDurationMs`: 3D Datasetのロードを含むLayer準備時間
+- `performance.averageUpdateMs` / `maxUpdateMs`: 1フレームの機体更新時間
+- `browserPerformance.fps`: 直近約1秒のFPS
+- `browserPerformance.usedJsHeapBytes`: 対応ブラウザのJavaScript heap使用量
+- `cloudDatasetRequestCount`: Cloud Dataset Resourceの要求回数（modelは5、pinは0）
+- `browserPerformance.loadWindowResourceCount` / `loadWindowTransferBytes`: Layerロード開始からREADYまでのResource Timing件数と転送量
+
+ブラウザキャッシュの影響を避ける比較では、各モードを別のInPrivateウィンドウで開くか、DevToolsのDisable cacheを有効にします。`transferSize`はブラウザやCDNのResource Timing制約により0になる場合があります。
+
+ChromeによるREADY回帰は、サーバー起動中に次で再実行できます。`model`はMapray CloudのAllowed Domainsとネットワークが必要です。
+
+```powershell
+.\scripts\windows\test_mapray_drone_model_browser.ps1 -RenderMode pin
+.\scripts\windows\test_mapray_drone_model_browser.ps1 -RenderMode model
+.\scripts\windows\test_mapray_drone_model_browser.ps1 -RenderMode both
+```
+
+コマンドのJSON出力にはREADY判定に加え、Layerとブラウザの性能値も含まれます。
+
+#### Cloud準備とトラブルシュート
+
+Mapray Cloudでairframeとpropellerの各Datasetが公開・変換完了状態であること、API KeyのAllowed Domainsに`localhost:18080`があることを確認します。Dataset IDは公開識別子なので設定JSONに保持しますが、API Keyや書込トークンは`.env`以外へ入れません。
+
+- `3D Dataset IDが未設定`: `config/mapray-drone-model.json`または起動引数を確認します。
+- `HTTP 401/403`: API KeyとAllowed Domainsを確認します。URLへKeyを追加しないでください。
+- モデルロードエラーでPinだけ残る: Cloud側の変換状態、Datasetの公開範囲、ネットワークを確認します。
+- モデルが重なる／ずれる: `-RenderMode both`でPin中心と機体中心を比較し、右上の既知姿勢を順に確認します。
+- ポート18080が別用途で使用中: そのプロセスを確認するか、`-HttpPort`で別ポートを指定します。
+
+Phase 5完了後は必須のPhase 6として、同じvisualを5機以上へ拡張し、機体ごとの生成・破棄、独立姿勢・ローター速度、1/5/10機性能を検証します。
+
+#### Phase 6 複数機モデル
+
+`-FleetSize`は1、5、10を指定できます。標準の`model`では1機あたり本体1＋プロペラ4の`5N` Entityを表示します。
+
+```powershell
+.\scripts\windows\start_mapray_drone_model_demo.ps1 -RenderMode model -FleetSize 5
+.\scripts\windows\start_mapray_drone_model_demo.ps1 -RenderMode model -FleetSize 10
+```
+
+画面右上の機体数セレクターでも1・5・10機を切り替えられます。編隊fixtureは機体ごとに位置、姿勢、4ローター速度を変え、100msごとに`FlightStateStore`を更新します。選択と追従は機体ID単位です。
+
+Fleet診断は`window.__maprayDroneModelDiagnostics`で確認できます。
+
+- `activeDroneCount`: 現在の機体数
+- `modelEntityCount` / `expectedModelEntityCount`: 実数と`5N`期待値
+- `cloudResourceCreateCount`: 共有Resource生成数。機体数によらずmodelでは2
+- `createdDroneCount` / `disposedDroneCount`: 追加・離脱・timeoutのライフサイクル累計
+- `layers`: 機体ID別の位置、姿勢、ローター速度・位相
+
+ブラウザ回帰と計測:
+
+```powershell
+.\scripts\windows\test_mapray_drone_model_browser.ps1 -RenderMode model -FleetSize 1
+.\scripts\windows\test_mapray_drone_model_browser.ps1 -RenderMode model -FleetSize 5
+.\scripts\windows\test_mapray_drone_model_browser.ps1 -RenderMode model -FleetSize 10
+.\scripts\windows\test_mapray_drone_model_browser.ps1 -RenderMode model -FleetSize 5 -LifecycleTest
+```
+
+#### Mapray Cloud用glTFの再生成
+
+Blender 5.2を使い、元のGLBから機体・プロペラの分離型glTF、SHA-256付きmanifest、ライセンスコピーを再生成できます。
+
+```powershell
+.\scripts\windows\build_mapray_model_assets.ps1
+```
+
+Khronos glTF Validatorを使用する場合は、公式Windows CLIの実行ファイルを指定します。この指定時は、両glTFのValidator errorが0件でなければ処理を失敗させます。
+
+```powershell
+.\scripts\windows\build_mapray_model_assets.ps1 `
+  -ValidatorPath "<展開先>\gltf_validator.exe"
+```
+
+生成先は `runtime/windows/generated/mapray-model-phase0` です。`LICENSE.txt`と検証レポートは生成先ルートへ分離されるため、Cloud登録では`airframe`または`propeller`ディレクトリをそのまま選択できます。
+
 ### ① 【推奨】5km四方 東京タワー比較デモ（ワンクリック起動）
 
 MaprayとPLATEAU 3D Tilesを同一の東京タワー5km四方で上下比較する決定版デモです。
